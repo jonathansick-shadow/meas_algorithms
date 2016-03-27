@@ -1,9 +1,9 @@
 from __future__ import absolute_import, division, print_function
-# 
+#
 # LSST Data Management System
 #
 # Copyright 2008-2015 AURA/LSST.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,14 +11,14 @@ from __future__ import absolute_import, division, print_function
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <https://www.lsstcorp.org/LegalNotices/>.
 #
 import abc
@@ -32,6 +32,7 @@ import lsst.pex.config as pexConfig
 import lsst.pipe.base as pipeBase
 
 __all__ = ["getRefFluxField", "getRefFluxKeys", "LoadReferenceObjectsTask", "LoadReferenceObjectsConfig"]
+
 
 def getRefFluxField(schema, filterName=None):
     """!Get name of flux field in schema
@@ -61,6 +62,7 @@ def getRefFluxField(schema, filterName=None):
 
     raise RuntimeError("Could not find flux field(s) %s" % (", ".join(fluxFieldList)))
 
+
 def getRefFluxKeys(schema, filterName=None):
     """!Return flux and flux error keys
 
@@ -80,6 +82,7 @@ def getRefFluxKeys(schema, filterName=None):
         fluxErrKey = None
     return (fluxKey, fluxErrKey)
 
+
 class LoadReferenceObjectsConfig(pexConfig.Config):
     pixelMargin = pexConfig.RangeField(
         doc = "Padding to add to 4 all edges of the bounding box (pixels)",
@@ -88,18 +91,19 @@ class LoadReferenceObjectsConfig(pexConfig.Config):
         min = 0,
     )
     defaultFilter = pexConfig.Field(
-        doc = "Default reference catalog filter to use if filter not specified in exposure; " + \
-            "if blank then filter must be specified in exposure",
+        doc = "Default reference catalog filter to use if filter not specified in exposure; " +
+        "if blank then filter must be specified in exposure",
         dtype = str,
         default = "",
     )
     filterMap = pexConfig.DictField(
-        doc = "Mapping of camera filter name: reference catalog filter name; " + \
-            "each reference filter must exist",
+        doc = "Mapping of camera filter name: reference catalog filter name; " +
+        "each reference filter must exist",
         keytype = str,
         itemtype = str,
         default = {},
     )
+
 
 class LoadReferenceObjectsTask(pipeBase.Task):
     """!Abstract base class to load objects from reference catalogs
@@ -179,7 +183,7 @@ class LoadReferenceObjectsTask(pipeBase.Task):
         @return a catalog of reference objects using the standard schema (see the class doc string)
         """
         # compute on-sky center and radius of search region, for loadSkyCircle
-        bbox = afwGeom.Box2D(bbox) # make sure bbox is double and that we have a copy
+        bbox = afwGeom.Box2D(bbox)  # make sure bbox is double and that we have a copy
         bbox.grow(self.config.pixelMargin)
         ctrCoord = wcs.pixelToSky(bbox.getCenter())
         maxRadius = afwGeom.Angle(0)
@@ -202,7 +206,7 @@ class LoadReferenceObjectsTask(pipeBase.Task):
         self.log.logdebug("trimmed %d out-of-bbox objects, leaving %d" % (numTrimmed, len(refCat)))
         self.log.info("Loaded %d reference objects" % (len(refCat),))
 
-        loadRes.refCat = refCat # should be a no-op, but just in case
+        loadRes.refCat = refCat  # should be a no-op, but just in case
         return loadRes
 
     @abc.abstractmethod
@@ -285,7 +289,7 @@ class LoadReferenceObjectsTask(pipeBase.Task):
 
     @staticmethod
     def makeMinimalSchema(filterNameList, addFluxSigma=False,
-            addIsPhotometric=False, addIsResolved=False, addIsVariable=False):
+                          addIsPhotometric=False, addIsResolved=False, addIsVariable=False):
         """!Make the standard schema for reference object catalogs
 
         @param[in] filterNameList  list of filter names; used to create *filterName*_flux fields

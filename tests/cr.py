@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,14 +11,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
@@ -71,19 +71,22 @@ import lsst.afw.display.ds9 as ds9
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 class CosmicRayTestCase(unittest.TestCase):
     """A test case for Cosmic Ray detection"""
+
     def setUp(self):
         self.FWHM = 5                   # pixels
         self.psf = algorithms.DoubleGaussianPsf(29, 29, self.FWHM/(2*sqrt(2*log(2))))
-            
+
         self.mi = afwImage.MaskedImageF(imageFile)
-        self.XY0 = afwGeom.PointI(0, 0) # origin of the subimage we use
+        self.XY0 = afwGeom.PointI(0, 0)  # origin of the subimage we use
 
         if imageFile == imageFile0:
             if True:                        # use full image, trimmed to data section
                 self.XY0 = afwGeom.PointI(32, 2)
-                self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(self.XY0, afwGeom.PointI(2079, 4609)), afwImage.LOCAL)
+                self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(
+                    self.XY0, afwGeom.PointI(2079, 4609)), afwImage.LOCAL)
                 self.mi.setXY0(afwGeom.PointI(0, 0))
                 self.nCR = 1076                 # number of CRs we should detect
             else:                               # use sub-image
@@ -93,7 +96,8 @@ class CosmicRayTestCase(unittest.TestCase):
                 else:
                     self.XY0 = afwGeom.PointI(280, 2750)
                     self.nCR = 2
-                self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(self.XY0, afwGeom.ExtentI(256, 256), afwImage.LOCAL))
+                self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(
+                    self.XY0, afwGeom.ExtentI(256, 256), afwImage.LOCAL))
                 self.mi.setXY0(afwGeom.PointI(0, 0))
         else:
             self.nCR = None
@@ -110,10 +114,10 @@ class CosmicRayTestCase(unittest.TestCase):
         #
         # Subtract background
         #
-        bctrl = afwMath.BackgroundControl(afwMath.Interpolate.NATURAL_SPLINE);
-        bctrl.setNxSample(int(self.mi.getWidth()/256) + 1);
-        bctrl.setNySample(int(self.mi.getHeight()/256) + 1);
-        bctrl.getStatisticsControl().setNumSigmaClip(3.0)  
+        bctrl = afwMath.BackgroundControl(afwMath.Interpolate.NATURAL_SPLINE)
+        bctrl.setNxSample(int(self.mi.getWidth()/256) + 1)
+        bctrl.setNySample(int(self.mi.getHeight()/256) + 1)
+        bctrl.getStatisticsControl().setNumSigmaClip(3.0)
         bctrl.getStatisticsControl().setNumIter(2)
 
         im = self.mi.getImage()
@@ -124,12 +128,12 @@ class CosmicRayTestCase(unittest.TestCase):
 
             bctrl.setInterpStyle(afwMath.Interpolate.CONSTANT)
             backobj = afwMath.makeBackground(im, bctrl)
-            
+
         im -= backobj.getImageF()
 
         if display:
             frame = 0
-            ds9.mtv(self.mi, frame = frame, title="Raw") # raw frame
+            ds9.mtv(self.mi, frame = frame, title="Raw")  # raw frame
             if self.mi.getWidth() > 256:
                 ds9.pan(944 - self.mi.getX0(), 260 - self.mi.getY0())
         #
@@ -172,15 +176,17 @@ class CosmicRayTestCase(unittest.TestCase):
         if self.nCR is not None:
             self.assertEqual(len(crs), self.nCR)
 
+
 class CosmicRayNullTestCase(unittest.TestCase):
     """A test case for no Cosmic Ray detection"""
+
     def setUp(self):
         self.FWHM = 5                   # pixels
         self.size = 128
 
         self.psf = algorithms.DoubleGaussianPsf(29, 29, self.FWHM/(2*sqrt(2*log(2))))
         self.mi = afwImage.MaskedImageF(128, 128)
-        self.mi.set((0,0,1))
+        self.mi.set((0, 0, 1))
 
     def tearDown(self):
         del self.psf
@@ -190,7 +196,7 @@ class CosmicRayNullTestCase(unittest.TestCase):
         crConfig = algorithms.FindCosmicRaysConfig()
         crs = algorithms.findCosmicRays(self.mi, self.psf, 0.0, pexConfig.makePolicy(crConfig))
         self.assertEqual(len(crs), 0, "Found %d CRs in empty image" % len(crs))
-        
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

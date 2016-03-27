@@ -6,7 +6,9 @@ import lsst.utils.tests as utilsTests
 from lsst.pex.config import Config, FieldValidationError
 from lsst.meas.algorithms import GaussianPsfFactory, SigmaPerFwhm, SingleGaussianPsf, DoubleGaussianPsf
 
+
 class GaussianPsfFactoryTestCase(unittest.TestCase):
+
     def testApply(self):
         """Test apply and computeSizeAndSigma methods
         """
@@ -73,7 +75,7 @@ class GaussianPsfFactoryTestCase(unittest.TestCase):
         """
         # test field-by-field validation
         for fieldName in \
-            ("size", "sizeFactor", "minSize", "maxSize", "defaultFwhm", "wingFwhmFactor", "wingAmplitude"):
+                ("size", "sizeFactor", "minSize", "maxSize", "defaultFwhm", "wingFwhmFactor", "wingAmplitude"):
             for value in (-1, 0):
                 factory = GaussianPsfFactory()
                 self.assertRaises(FieldValidationError, setattr, factory, fieldName, value)
@@ -92,7 +94,7 @@ class GaussianPsfFactoryTestCase(unittest.TestCase):
                 if None not in (minSize, maxSize) and maxSize < minSize:
                     self.assertRaises(Exception, factory.validate)
                 else:
-                    factory.validate() # should not raise
+                    factory.validate()  # should not raise
 
     def testMakeField(self):
         """Test the makeField method
@@ -137,6 +139,7 @@ def suite():
     suites += unittest.makeSuite(GaussianPsfFactoryTestCase)
     suites += unittest.makeSuite(utilsTests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the utilsTests"""

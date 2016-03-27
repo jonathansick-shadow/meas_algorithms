@@ -32,7 +32,9 @@ or
    >>> import measure; measure.run()
 """
 
-import os, sys, unittest
+import os
+import sys
+import unittest
 import math
 import lsst.utils
 import lsst.utils.tests as tests
@@ -66,6 +68,7 @@ try:
 except Exception:
     afwdataDir = None
 
+
 def toString(*args):
     """toString written in python"""
     if len(args) == 1:
@@ -76,9 +79,11 @@ def toString(*args):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 class MeasureTestCase(unittest.TestCase):
     """A test case for Measure"""
     class Object(object):
+
         def __init__(self, val, spans):
             self.val = val
             self.spans = spans
@@ -99,8 +104,10 @@ class MeasureTestCase(unittest.TestCase):
 
     def setUp(self):
         ms = afwImage.MaskedImageF(afwGeom.ExtentI(31, 27))
-        var = ms.getVariance(); var.set(1); del var
-        bbox = afwGeom.BoxI(afwGeom.PointI(1,1), afwGeom.ExtentI(24, 20))
+        var = ms.getVariance()
+        var.set(1)
+        del var
+        bbox = afwGeom.BoxI(afwGeom.PointI(1, 1), afwGeom.ExtentI(24, 20))
         self.mi = afwImage.MaskedImageF(ms, bbox, afwImage.LOCAL)
         self.exposure = afwImage.makeExposure(self.mi)
         im = self.mi.getImage()
@@ -128,9 +135,9 @@ class MeasureTestCase(unittest.TestCase):
     def testFootprintsMeasure(self):
         """Check that we can measure the objects in a detectionSet"""
 
-        xcentroid = [10.0, 14.0,        9.0]
-        ycentroid = [8.0, 11.5061728,  14.0]
-        flux = [51.0, 101.0,         20.0]
+        xcentroid = [10.0, 14.0, 9.0]
+        ycentroid = [8.0, 11.5061728, 14.0]
+        flux = [51.0, 101.0, 20.0]
 
         ds = afwDetection.FootprintSet(self.mi, afwDetection.Threshold(10), "DETECTED")
 
@@ -153,10 +160,10 @@ class MeasureTestCase(unittest.TestCase):
         task = measBase.SingleFrameMeasurementTask(schema, config=measureSourcesConfig)
         measCat = afwTable.SourceCatalog(schema)
         # now run the SFM task with the test plugin
-        sigma = 1e-10; psf = algorithms.DoubleGaussianPsf(11, 11, sigma) # i.e. a single pixel
+        sigma = 1e-10
+        psf = algorithms.DoubleGaussianPsf(11, 11, sigma)  # i.e. a single pixel
         self.exposure.setPsf(psf)
         task.run(measCat, self.exposure)
-
 
         for i, source in enumerate(measCat):
 
@@ -167,20 +174,22 @@ class MeasureTestCase(unittest.TestCase):
             self.assertAlmostEqual(source.getX(), xcentroid[i], 6)
             self.assertAlmostEqual(source.getY(), ycentroid[i], 6)
             self.assertEqual(source.getApFlux(), flux[i])
-            self.assertAlmostEqual(source.getApFluxErr(), math.sqrt(29), 6) # 29 pixels in 3pixel circular ap.
+            # 29 pixels in 3pixel circular ap.
+            self.assertAlmostEqual(source.getApFluxErr(), math.sqrt(29), 6)
             # We're using a delta-function PSF, so the psfFlux should be the pixel under the centroid,
             # iff the object's centred in the pixel
             if xc == int(xc) and yc == int(yc):
                 self.assertAlmostEqual(source.getPsfFlux(),
                                        self.exposure.getMaskedImage().getImage().get(int(xc + 0.5),
-                                                                                 int(yc + 0.5)))
+                                                                                     int(yc + 0.5)))
                 self.assertAlmostEqual(source.getPsfFluxErr(),
                                        self.exposure.getMaskedImage().getVariance().get(int(xc + 0.5),
-                                                                                    int(yc + 0.5)))
+                                                                                        int(yc + 0.5)))
 
 
 class FindAndMeasureTestCase(unittest.TestCase):
     """A test case detecting and measuring objects"""
+
     def setUp(self):
         self.mi = afwImage.MaskedImageF(os.path.join(afwdataDir,
                                                      "CFHT", "D4", "cal-53535-i-797722_1.fits"))
@@ -190,11 +199,13 @@ class FindAndMeasureTestCase(unittest.TestCase):
 
         if False:                       # use full image, trimmed to data section
             self.XY0 = afwGeom.PointI(32, 2)
-            self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(self.XY0, afwGeom.PointI(2079, 4609)), afwImage.LOCAL)
+            self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(
+                self.XY0, afwGeom.PointI(2079, 4609)), afwImage.LOCAL)
             self.mi.setXY0(afwGeom.PointI(0, 0))
         else:                           # use sub-image
             self.XY0 = afwGeom.PointI(824, 140)
-            self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(self.XY0, afwGeom.ExtentI(256, 256)), afwImage.LOCAL)
+            self.mi = self.mi.Factory(self.mi, afwGeom.BoxI(
+                self.XY0, afwGeom.ExtentI(256, 256)), afwImage.LOCAL)
 
         self.mi.getMask().addMaskPlane("DETECTED")
         self.exposure = afwImage.makeExposure(self.mi)
@@ -227,12 +238,14 @@ class FindAndMeasureTestCase(unittest.TestCase):
         # Subtract background
         #
         bgGridSize = 64  # was 256 ... but that gives only one region and the spline breaks
-        bctrl = afwMath.BackgroundControl(afwMath.Interpolate.NATURAL_SPLINE);
-        bctrl.setNxSample(int(self.mi.getWidth()/bgGridSize) + 1);
-        bctrl.setNySample(int(self.mi.getHeight()/bgGridSize) + 1);
+        bctrl = afwMath.BackgroundControl(afwMath.Interpolate.NATURAL_SPLINE)
+        bctrl.setNxSample(int(self.mi.getWidth()/bgGridSize) + 1)
+        bctrl.setNySample(int(self.mi.getHeight()/bgGridSize) + 1)
         backobj = afwMath.makeBackground(self.mi.getImage(), bctrl)
 
-        img = self.mi.getImage(); img -= backobj.getImageF(); del img
+        img = self.mi.getImage()
+        img -= backobj.getImageF()
+        del img
         #
         # Remove CRs
         #
@@ -244,11 +257,13 @@ class FindAndMeasureTestCase(unittest.TestCase):
         #
         savedMask = self.mi.getMask().Factory(self.mi.getMask(), True)
         saveBits = savedMask.getPlaneBitMask("CR") | \
-                   savedMask.getPlaneBitMask("BAD") | \
-                   savedMask.getPlaneBitMask("INTRP") # Bits to not convolve
+            savedMask.getPlaneBitMask("BAD") | \
+            savedMask.getPlaneBitMask("INTRP")  # Bits to not convolve
         savedMask &= saveBits
 
-        msk = self.mi.getMask(); msk &= ~saveBits; del msk # Clear the saved bits
+        msk = self.mi.getMask()
+        msk &= ~saveBits
+        del msk  # Clear the saved bits
         #
         # Smooth image
         #
@@ -258,14 +273,16 @@ class FindAndMeasureTestCase(unittest.TestCase):
         kernel = psf.getKernel()
         afwMath.convolve(cnvImage, self.mi, kernel, afwMath.ConvolutionControl())
 
-        msk = cnvImage.getMask(); msk |= savedMask; del msk # restore the saved bits
+        msk = cnvImage.getMask()
+        msk |= savedMask
+        del msk  # restore the saved bits
 
         threshold = afwDetection.Threshold(3, afwDetection.Threshold.STDEV)
         #
         # Only search the part of the frame that was PSF-smoothed
         #
         llc = afwGeom.PointI(psf.getKernel().getWidth()/2, psf.getKernel().getHeight()/2)
-        urc = afwGeom.PointI(cnvImage.getWidth() -llc[0] - 1, cnvImage.getHeight() - llc[1] - 1)
+        urc = afwGeom.PointI(cnvImage.getWidth() - llc[0] - 1, cnvImage.getHeight() - llc[1] - 1)
         middle = cnvImage.Factory(cnvImage, afwGeom.BoxI(llc, urc), afwImage.LOCAL)
         ds = afwDetection.FootprintSet(middle, threshold, "DETECTED")
         del middle
@@ -273,7 +290,9 @@ class FindAndMeasureTestCase(unittest.TestCase):
         # Reinstate the saved (e.g. BAD) (and also the DETECTED | EDGE) bits in the unsmoothed image
         #
         savedMask[:] = cnvImage.getMask()
-        msk = self.mi.getMask(); msk |= savedMask; del msk
+        msk = self.mi.getMask()
+        msk |= savedMask
+        del msk
         del savedMask
 
         if display:
@@ -312,8 +331,10 @@ class FindAndMeasureTestCase(unittest.TestCase):
             if display:
                 ds9.dot("+", source.getX() - self.mi.getX0(), source.getY() - self.mi.getY0())
 
+
 class GaussianPsfTestCase(unittest.TestCase):
     """A test case detecting and measuring Gaussian PSFs"""
+
     def setUp(self):
         FWHM = 5
         psf = algorithms.DoubleGaussianPsf(15, 15, FWHM/(2*math.sqrt(2*math.log(2))))
@@ -378,6 +399,7 @@ class GaussianPsfTestCase(unittest.TestCase):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     tests.init()
@@ -388,6 +410,7 @@ def suite():
     suites += unittest.makeSuite(GaussianPsfTestCase)
     suites += unittest.makeSuite(tests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the tests"""

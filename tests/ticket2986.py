@@ -32,7 +32,9 @@ import lsst.afw.coord as afwCoord
 import lsst.afw.table as afwTable
 import lsst.meas.algorithms as measAlg
 
+
 class Ticket2986Test(unittest.TestCase):
+
     def test(self):
         schema = afwTable.ExposureTable.makeMinimalSchema()
         schema.addField("ccd", int, doc="CCD number")
@@ -63,9 +65,10 @@ class Ticket2986Test(unittest.TestCase):
         new.setWcs(wcs)
 
         # In the presence of the bug, the following fails with
-	# lsst::pex::exceptions::RuntimeError thrown in src/CoaddPsf.cc
+        # lsst::pex::exceptions::RuntimeError thrown in src/CoaddPsf.cc
         # with message: "Could not find a valid average position for CoaddPsf"
         measAlg.CoaddPsf(ccds, wcs)
+
 
 def suite():
     """Returns a suite containing all the test cases in this module."""
@@ -76,6 +79,7 @@ def suite():
     suites += unittest.makeSuite(utilsTests.MemoryTestCase)
 
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit=False):
     """Run the tests"""

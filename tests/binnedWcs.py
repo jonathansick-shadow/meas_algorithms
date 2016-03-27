@@ -34,9 +34,11 @@ import lsst.afw.coord as afwCoord
 
 from lsst.meas.algorithms import BinnedWcs, NotImplementedException
 
+
 class BinnedWcsTest(utilsTests.TestCase):
+
     def setUp(self):
-        self.scale = (1.0*afwGeom.arcseconds).asDegrees() # degrees/pixel
+        self.scale = (1.0*afwGeom.arcseconds).asDegrees()  # degrees/pixel
         self.wcs = afwImage.makeWcs(afwCoord.Coord(0.0*afwGeom.degrees, 0.0*afwGeom.degrees),
                                     afwGeom.Point2D(0.0, 0.0), self.scale, 0.0, 0.0, self.scale)
 
@@ -71,16 +73,17 @@ class BinnedWcsTest(utilsTests.TestCase):
             self.assertPointEqual(pixelToSky(binned), sky)
 
     def testCases(self):
-        for xBin, yBin, x0, y0 in [(1, 1, 0, 0), # Pass-through
-                                   (1, 1, 12345, 6789), # Offset only
-                                   (100, 100, 0, 0), # Binning only
+        for xBin, yBin, x0, y0 in [(1, 1, 0, 0),  # Pass-through
+                                   (1, 1, 12345, 6789),  # Offset only
+                                   (100, 100, 0, 0),  # Binning only
                                    (8, 3, 0, 0),     # Different binnings
-                                   (100, 100, 12345, 6789), # Binning and offset
-                                   (4, 7, 9876, 54321), # Different binnings and offset
+                                   (100, 100, 12345, 6789),  # Binning and offset
+                                   (4, 7, 9876, 54321),  # Different binnings and offset
                                    ]:
             print "Testing:", xBin, yBin, x0, y0
             binnedWcs = BinnedWcs(self.wcs, xBin, yBin, afwGeom.Point2I(x0, y0))
             self.assertWcs(self.wcs, binnedWcs, xBin, yBin, x0, y0)
+
 
 def suite():
     """Returns a suite containing all the test cases in this module."""
@@ -91,6 +94,7 @@ def suite():
     suites += unittest.makeSuite(BinnedWcsTest)
     suites += unittest.makeSuite(utilsTests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit=False):
     """Run the tests"""

@@ -50,8 +50,10 @@ except:
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 class CandidateMaskingTestCase(unittest.TestCase):
     """Testing masking around PSF candidates"""
+
     def setUp(self):
         self.x, self.y = 123, 45
         self.exp = afwImage.ExposureF(256, 256)
@@ -102,8 +104,8 @@ class CandidateMaskingTestCase(unittest.TestCase):
         @param pixelThreshold: Threshold for masking pixels on candidate
         """
         image = self.exp.getMaskedImage().getImage()
-        for x,y,f in badPixels + extraPixels:
-            image[x,y] = f
+        for x, y, f in badPixels + extraPixels:
+            image[x, y] = f
         cand = self.createCandidate(threshold=threshold)
         oldPixelThreshold = cand.getPixelThreshold()
         try:
@@ -116,7 +118,7 @@ class CandidateMaskingTestCase(unittest.TestCase):
 
             detected = mask.getMaskPlane("DETECTED")
             intrp = mask.getMaskPlane("INTRP")
-            for x,y,f in badPixels:
+            for x, y, f in badPixels:
                 x -= self.x - size//2
                 y -= self.y - size//2
                 self.assertTrue(mask.get(x, y, intrp))
@@ -161,6 +163,7 @@ def suite():
     suites += unittest.makeSuite(CandidateMaskingTestCase)
     suites += unittest.makeSuite(tests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the tests"""

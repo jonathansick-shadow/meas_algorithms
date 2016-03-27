@@ -1,7 +1,7 @@
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -9,14 +9,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 import math
@@ -33,6 +33,7 @@ import lsst.afw.display.ds9 as ds9
 import lsst.afw.math as afwMath
 from . import algorithmsLib
 from . import utils as maUtils
+
 
 class PcaPsfDeterminerConfig(pexConfig.Config):
     nonLinearSpatialFit = pexConfig.Field(
@@ -54,14 +55,14 @@ class PcaPsfDeterminerConfig(pexConfig.Config):
         doc = "size of cell used to determine PSF (pixels, column direction)",
         dtype = int,
         default = 256,
-#        minValue = 10,
+        #        minValue = 10,
         check = lambda x: x >= 10,
     )
     sizeCellY = pexConfig.Field(
         doc = "size of cell used to determine PSF (pixels, row direction)",
         dtype = int,
         default = sizeCellX.default,
-#        minValue = 10,
+        #        minValue = 10,
         check = lambda x: x >= 10,
     )
     nStarPerCell = pexConfig.Field(
@@ -140,6 +141,7 @@ class PcaPsfDeterminerConfig(pexConfig.Config):
         default = True,
     )
 
+
 class PcaPsfDeterminer(object):
     """!
     A measurePsfTask psf estimator
@@ -182,7 +184,7 @@ class PcaPsfDeterminer(object):
         #
         # Express eigenValues in units of reduced chi^2 per star
         size = kernelSize + 2*self.config.borderWidth
-        nu = size*size - 1                  # number of degrees of freedom/star for chi^2    
+        nu = size*size - 1                  # number of degrees of freedom/star for chi^2
         eigenValues = [l/float(algorithmsLib.countPsfCandidates(psfCellSet, self.config.nStarPerCell)*nu)
                        for l in eigenValues]
 
@@ -195,40 +197,42 @@ class PcaPsfDeterminer(object):
 
         return psf, eigenValues, nEigen, chi2
 
-
     def determinePsf(self, exposure, psfCandidateList, metadata=None, flagKey=None):
         """!Determine a PCA PSF model for an exposure given a list of PSF candidates
-        
+
         \param[in] exposure exposure containing the psf candidates (lsst.afw.image.Exposure)
         \param[in] psfCandidateList a sequence of PSF candidates (each an lsst.meas.algorithms.PsfCandidate);
             typically obtained by detecting sources and then running them through a star selector
         \param[in,out] metadata  a home for interesting tidbits of information
         \param[in] flagKey schema key used to mark sources actually used in PSF determination
-    
+
         \return a list of
          - psf: the measured PSF, an lsst.meas.algorithms.PcaPsf
          - cellSet: an lsst.afw.math.SpatialCellSet containing the PSF candidates
         """
         import lsstDebug
-        display = lsstDebug.Info(__name__).display 
-        displayExposure = lsstDebug.Info(__name__).displayExposure     # display the Exposure + spatialCells 
-        displayPsfCandidates = lsstDebug.Info(__name__).displayPsfCandidates # show the viable candidates 
-        displayIterations = lsstDebug.Info(__name__).displayIterations # display on each PSF iteration 
-        displayPsfComponents = lsstDebug.Info(__name__).displayPsfComponents # show the PCA components
+        display = lsstDebug.Info(__name__).display
+        displayExposure = lsstDebug.Info(__name__).displayExposure     # display the Exposure + spatialCells
+        displayPsfCandidates = lsstDebug.Info(__name__).displayPsfCandidates  # show the viable candidates
+        displayIterations = lsstDebug.Info(__name__).displayIterations  # display on each PSF iteration
+        displayPsfComponents = lsstDebug.Info(__name__).displayPsfComponents  # show the PCA components
         displayResiduals = lsstDebug.Info(__name__).displayResiduals         # show residuals
         displayPsfMosaic = lsstDebug.Info(__name__).displayPsfMosaic   # show mosaic of reconstructed PSF(x,y)
-        matchKernelAmplitudes = lsstDebug.Info(__name__).matchKernelAmplitudes # match Kernel amplitudes for spatial plots
-        keepMatplotlibPlots = lsstDebug.Info(__name__).keepMatplotlibPlots # Keep matplotlib alive post mortem
-        displayPsfSpatialModel = lsstDebug.Info(__name__).displayPsfSpatialModel # Plot spatial model?
-        showBadCandidates = lsstDebug.Info(__name__).showBadCandidates # Include bad candidates 
-        normalizeResiduals = lsstDebug.Info(__name__).normalizeResiduals # Normalise residuals by object amplitude 
+        # match Kernel amplitudes for spatial plots
+        matchKernelAmplitudes = lsstDebug.Info(__name__).matchKernelAmplitudes
+        # Keep matplotlib alive post mortem
+        keepMatplotlibPlots = lsstDebug.Info(__name__).keepMatplotlibPlots
+        displayPsfSpatialModel = lsstDebug.Info(__name__).displayPsfSpatialModel  # Plot spatial model?
+        showBadCandidates = lsstDebug.Info(__name__).showBadCandidates  # Include bad candidates
+        # Normalise residuals by object amplitude
+        normalizeResiduals = lsstDebug.Info(__name__).normalizeResiduals
         pause = lsstDebug.Info(__name__).pause                         # Prompt user after each iteration?
-         
+
         if display > 1:
             pause = True
 
         mi = exposure.getMaskedImage()
-        
+
         if len(psfCandidateList) == 0:
             raise RuntimeError("No PSF candidates supplied.")
 
@@ -237,7 +241,7 @@ class PcaPsfDeterminer(object):
         psfCellSet = afwMath.SpatialCellSet(bbox, self.config.sizeCellX, self.config.sizeCellY)
         sizes = []
         for i, psfCandidate in enumerate(psfCandidateList):
-            if psfCandidate.getSource().getPsfFluxFlag(): # bad measurement
+            if psfCandidate.getSource().getPsfFluxFlag():  # bad measurement
                 continue
 
             try:
@@ -252,14 +256,14 @@ class PcaPsfDeterminer(object):
             sizes.append(axes.getA())
         if len(sizes) == 0:
             raise RuntimeError("No usable PSF candidates supplied")
-        nEigenComponents = self.config.nEigenComponents # initial version
+        nEigenComponents = self.config.nEigenComponents  # initial version
 
         if self.config.kernelSize >= 15:
-            self.debugLog.debug(1, \
-                "WARNING: NOT scaling kernelSize by stellar quadrupole moment " +
-                "because config.kernelSize=%s >= 15; using config.kernelSize as as the width, instead" \
-                % (self.config.kernelSize,)
-            )
+            self.debugLog.debug(1,
+                                "WARNING: NOT scaling kernelSize by stellar quadrupole moment " +
+                                "because config.kernelSize=%s >= 15; using config.kernelSize as as the width, instead"
+                                % (self.config.kernelSize,)
+                                )
             actualKernelSize = int(self.config.kernelSize)
         else:
             medSize = numpy.median(sizes)
@@ -279,7 +283,7 @@ class PcaPsfDeterminer(object):
 
         if self.config.doRejectBlends:
             # Remove blended candidates completely
-            blendedCandidates = [] # Candidates to remove; can't do it while iterating
+            blendedCandidates = []  # Candidates to remove; can't do it while iterating
             for cell, cand in candidatesIter(psfCellSet, False):
                 if len(cand.getSource().getFootprint().getPeaks()) > 1:
                     blendedCandidates.append((cell, cand))
@@ -298,19 +302,19 @@ class PcaPsfDeterminer(object):
                 maUtils.showPsfSpatialCells(exposure, psfCellSet, self.config.nStarPerCell,
                                             symb="o", ctype=ds9.CYAN, ctypeUnused=ds9.YELLOW,
                                             size=4, frame=frame)
-            
+
         #
         # Do a PCA decomposition of those PSF candidates
         #
         reply = "y"                         # used in interactive mode
         for iter in range(self.config.nIterForPsf):
-            if display and displayPsfCandidates: # Show a mosaic of usable PSF candidates
+            if display and displayPsfCandidates:  # Show a mosaic of usable PSF candidates
                 #
                 import lsst.afw.display.utils as displayUtils
 
                 stamps = []
                 for cell in psfCellSet.getCellList():
-                    for cand in cell.begin(not showBadCandidates): # maybe include bad candidates
+                    for cand in cell.begin(not showBadCandidates):  # maybe include bad candidates
                         cand = algorithmsLib.cast_PsfCandidateF(cand)
 
                         try:
@@ -341,11 +345,10 @@ class PcaPsfDeterminer(object):
                                    ds9.GREEN if status == afwMath.SpatialCellCandidate.GOOD else
                                    ds9.YELLOW if status == afwMath.SpatialCellCandidate.UNKNOWN else ds9.RED)
 
-
                     mos.makeMosaic(frame=8, title="Psf Candidates")
 
             # Re-fit until we don't have any candidates with naughty chi^2 values influencing the fit
-            cleanChi2 = False # Any naughty (negative/NAN) chi^2 values?
+            cleanChi2 = False  # Any naughty (negative/NAN) chi^2 values?
             while not cleanChi2:
                 cleanChi2 = True
                 #
@@ -356,12 +359,12 @@ class PcaPsfDeterminer(object):
                 #
                 # In clipping, allow all candidates to be innocent until proven guilty on this iteration.
                 # Throw out any prima facie guilty candidates (naughty chi^2 values)
-                # 
+                #
                 for cell in psfCellSet.getCellList():
                     awfulCandidates = []
-                    for cand in cell.begin(False): # include bad candidates
+                    for cand in cell.begin(False):  # include bad candidates
                         cand = algorithmsLib.cast_PsfCandidateF(cand)
-                        cand.setStatus(afwMath.SpatialCellCandidate.UNKNOWN) # until proven guilty
+                        cand.setStatus(afwMath.SpatialCellCandidate.UNKNOWN)  # until proven guilty
                         rchi2 = cand.getChi2()
                         if not numpy.isfinite(rchi2) or rchi2 <= 0:
                             # Guilty prima facie
@@ -380,7 +383,7 @@ class PcaPsfDeterminer(object):
             #
             badCandidates = list()
             for cell in psfCellSet.getCellList():
-                for cand in cell.begin(False): # include bad candidates
+                for cand in cell.begin(False):  # include bad candidates
                     cand = algorithmsLib.cast_PsfCandidateF(cand)
                     rchi2 = cand.getChi2()  # reduced chi^2 when fitting PSF to candidate
                     assert rchi2 > 0
@@ -394,7 +397,7 @@ class PcaPsfDeterminer(object):
                     chi2 = c.getChi2()
                     if chi2 > 1e100:
                         chi2 = numpy.nan
-                    
+
                     print "Chi^2 clipping %-4d  %.2g" % (c.getSource().getId(), chi2)
                 c.setStatus(afwMath.SpatialCellCandidate.BAD)
 
@@ -430,7 +433,7 @@ class PcaPsfDeterminer(object):
                     predict = [kernel.getSpatialFunction(k)(candCenter.getX(), candCenter.getY()) for
                                k in range(kernel.getNKernelParameters())]
 
-                    #print cand.getSource().getId(), [a / amp for a in params], predict
+                    # print cand.getSource().getId(), [a / amp for a in params], predict
 
                     residuals.append([a / amp - p for a, p in zip(params, predict)])
                     candidates.append(cand)
@@ -440,16 +443,16 @@ class PcaPsfDeterminer(object):
             for k in range(kernel.getNKernelParameters()):
                 if False:
                     # Straight standard deviation
-                    mean = residuals[:,k].mean()
-                    rms = residuals[:,k].std()
+                    mean = residuals[:, k].mean()
+                    rms = residuals[:, k].std()
                 elif False:
                     # Using interquartile range
-                    sr = numpy.sort(residuals[:,k])
+                    sr = numpy.sort(residuals[:, k])
                     mean = sr[int(0.5*len(sr))] if len(sr) % 2 else \
-                           0.5 * (sr[int(0.5*len(sr))] + sr[int(0.5*len(sr))+1])
+                        0.5 * (sr[int(0.5*len(sr))] + sr[int(0.5*len(sr))+1])
                     rms = 0.74 * (sr[int(0.75*len(sr))] - sr[int(0.25*len(sr))])
                 else:
-                    stats = afwMath.makeStatistics(residuals[:,k], afwMath.MEANCLIP | afwMath.STDEVCLIP)
+                    stats = afwMath.makeStatistics(residuals[:, k], afwMath.MEANCLIP | afwMath.STDEVCLIP)
                     mean = stats.getValue(afwMath.MEANCLIP)
                     rms = stats.getValue(afwMath.STDEVCLIP)
 
@@ -460,10 +463,10 @@ class PcaPsfDeterminer(object):
                     print "RMS for component %d is %f" % (k, rms)
                 badCandidates = list()
                 for i, cand in enumerate(candidates):
-                    if numpy.fabs(residuals[i,k] - mean) > self.config.spatialReject * rms:
+                    if numpy.fabs(residuals[i, k] - mean) > self.config.spatialReject * rms:
                         badCandidates.append(i)
 
-                badCandidates.sort(key=lambda x: numpy.fabs(residuals[x,k] - mean), reverse=True)
+                badCandidates.sort(key=lambda x: numpy.fabs(residuals[x, k] - mean), reverse=True)
 
                 numBad = int(len(badCandidates) * (iter + 1) / self.config.nIterForPsf + 0.5)
 
@@ -472,7 +475,7 @@ class PcaPsfDeterminer(object):
                     if display:
                         print "Spatial clipping %d (%f,%f) based on %d: %f vs %f" % \
                               (cand.getSource().getId(), cand.getXCenter(), cand.getYCenter(), k,
-                               residuals[badCandidates[i],k], self.config.spatialReject * rms)
+                               residuals[badCandidates[i], k], self.config.spatialReject * rms)
                     cand.setStatus(afwMath.SpatialCellCandidate.BAD)
 
             #
@@ -535,7 +538,8 @@ class PcaPsfDeterminer(object):
                                 print "c[ontinue without prompting] h[elp] n[o] p[db] q[uit displaying] s[ave fileName] y[es]"
                                 continue
                             elif reply == "p":
-                                import pdb; pdb.set_trace() 
+                                import pdb
+                                pdb.set_trace()
                             elif reply == "q":
                                 display = False
                             elif reply == "Q":

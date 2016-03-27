@@ -1,7 +1,7 @@
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2015 AURA/LSST.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -9,14 +9,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <https://www.lsstcorp.org/LegalNotices/>.
 #
 import sys
@@ -38,12 +38,13 @@ import lsst.afw.cameraGeom as cameraGeom
 from . import algorithmsLib
 from lsst.meas.algorithms.starSelectorRegistry import starSelectorRegistry
 
+
 class ObjectSizeStarSelectorConfig(pexConfig.Config):
     fluxMin = pexConfig.Field(
         doc = "specify the minimum psfFlux for good Psf Candidates",
         dtype = float,
         default = 12500.0,
-#        minValue = 0.0,
+        #        minValue = 0.0,
         check = lambda x: x >= 0.0,
     )
     fluxMax = pexConfig.Field(
@@ -109,8 +110,10 @@ class ObjectSizeStarSelectorConfig(pexConfig.Config):
             raise pexConfig.FieldValidationError("widthMin (%f) > widthMax (%f)"
                                                  % (self.widthMin, self.widthMax))
 
+
 class EventHandler(object):
     """A class to handle key strokes with matplotlib displays"""
+
     def __init__(self, axes, xs, ys, x, y, frames=[0]):
         self.axes = axes
         self.xs = xs
@@ -141,6 +144,7 @@ class EventHandler(object):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 def _assignClusters(yvec, centers):
     """Return a vector of centerIds based on their distance to the centers"""
     assert len(centers) > 0
@@ -161,6 +165,7 @@ def _assignClusters(yvec, centers):
 
     return clusterId
 
+
 def _kcenters(yvec, nCluster, useMedian=False, widthStdAllowed=0.15):
     """A classic k-means algorithm, clustering yvec into nCluster clusters
 
@@ -177,7 +182,7 @@ def _kcenters(yvec, nCluster, useMedian=False, widthStdAllowed=0.15):
 
     assert nCluster > 0
 
-    mean0 = sorted(yvec)[len(yvec)//10] # guess
+    mean0 = sorted(yvec)[len(yvec)//10]  # guess
     delta = mean0 * widthStdAllowed * 2.0
     centers = mean0 + delta * numpy.arange(nCluster)
 
@@ -201,6 +206,7 @@ def _kcenters(yvec, nCluster, useMedian=False, widthStdAllowed=0.15):
                 centers[i] = numpy.nan
 
     return centers, clusterId
+
 
 def _improveCluster(yvec, centers, clusterId, nsigma=2.0, nIteration=10, clusterNum=0, widthStdAllowed=0.15):
     """Improve our estimate of one of the clusters (clusterNum) by sigma-clipping around its median"""
@@ -236,6 +242,7 @@ def _improveCluster(yvec, centers, clusterId, nsigma=2.0, nIteration=10, cluster
 
     return clusterId
 
+
 def plot(mag, width, centers, clusterId, marker="o", markersize=2, markeredgewidth=0, ltype='-',
          magType="model", clear=True):
 
@@ -246,7 +253,7 @@ def plot(mag, width, centers, clusterId, marker="o", markersize=2, markeredgewid
         if clear:
             fig.clf()
 
-    axes = fig.add_axes((0.1, 0.1, 0.85, 0.80));
+    axes = fig.add_axes((0.1, 0.1, 0.85, 0.80))
 
     xmin = sorted(mag)[int(0.05*len(mag))]
     xmax = sorted(mag)[int(0.95*len(mag))]
@@ -255,7 +262,7 @@ def plot(mag, width, centers, clusterId, marker="o", markersize=2, markeredgewid
     axes.set_xlim(xmin - 0.1*(xmax - xmin), xmax + 0.1*(xmax - xmin))
     axes.set_ylim(0, 10)
 
-    colors = ["r", "g", "b", "c", "m", "k",]
+    colors = ["r", "g", "b", "c", "m", "k", ]
     for k, mean in enumerate(centers):
         if k == 0:
             axes.plot(axes.get_xlim(), (mean, mean,), "k%s" % ltype)
@@ -276,12 +283,13 @@ def plot(mag, width, centers, clusterId, marker="o", markersize=2, markeredgewid
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 class ObjectSizeStarSelector(object):
     """!
     A measurePsfTask star selector
     """
     ConfigClass = ObjectSizeStarSelectorConfig
-    usesMatches = False # selectStars does not use its matches argument
+    usesMatches = False  # selectStars does not use its matches argument
 
     def __init__(self, config):
         """!
@@ -289,12 +297,12 @@ class ObjectSizeStarSelector(object):
 
         \param[in] config An instance of ObjectSizeStarSelectorConfig
         """
-        self._kernelSize  = config.kernelSize
+        self._kernelSize = config.kernelSize
         self._borderWidth = config.borderWidth
         self._widthMin = config.widthMin
         self._widthMax = config.widthMax
-        self._fluxMin  = config.fluxMin
-        self._fluxMax  = config.fluxMax
+        self._fluxMin = config.fluxMin
+        self._fluxMax = config.fluxMax
         self._badFlags = config.badFlags
         self._sourceFluxField = config.sourceFluxField
         self._widthStdAllowed = config.widthStdAllowed
@@ -368,7 +376,8 @@ class ObjectSizeStarSelector(object):
         # the initial peak (of, we presume, stars) from the galaxies
         #
         if dumpData:
-            import os, cPickle as pickle
+            import os
+            import cPickle as pickle
             _ii = 0
             while True:
                 pickleFile = os.path.expanduser(os.path.join("~", "widths-%d.pkl" % _ii))
@@ -432,7 +441,8 @@ class ObjectSizeStarSelector(object):
     If displayExposure is true, you can put the cursor on a point and hit 'p' to see it in ds9.
     """
                     elif reply[0] == "p":
-                        import pdb; pdb.set_trace()
+                        import pdb
+                        pdb.set_trace()
                     elif reply[0] == 'q':
                         sys.exit(1)
                     else:
@@ -444,9 +454,9 @@ class ObjectSizeStarSelector(object):
             with ds9.Buffering():
                 for i, source in enumerate(sourceCat):
                     if good[i]:
-                        ctype = ds9.GREEN # star candidate
+                        ctype = ds9.GREEN  # star candidate
                     else:
-                        ctype = ds9.RED # not star
+                        ctype = ds9.RED  # not star
 
                     ds9.dot("+", source.getX() - mi.getX0(),
                             source.getY() - mi.getY0(), frame=frame, ctype=ctype)
@@ -479,7 +489,8 @@ class ObjectSizeStarSelector(object):
                         ds9.dot("o", source.getX() - mi.getX0(), source.getY() - mi.getY0(),
                                 size=4, frame=frame, ctype=ds9.CYAN)
                 except Exception as err:
-                    logger.logdebug("Failed to make a psfCandidate from source %d: %s" % (source.getId(), err))
+                    logger.logdebug("Failed to make a psfCandidate from source %d: %s" %
+                                    (source.getId(), err))
 
         return psfCandidateList
 

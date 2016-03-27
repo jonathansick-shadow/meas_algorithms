@@ -53,7 +53,7 @@ class CoaddApCorrMapTest(unittest.TestCase):
     def test(self):
         """Check that we can create and use a coadd ApCorrMap"""
         coaddBox = afwGeom.Box2I(afwGeom.Point2I(0, 0), afwGeom.Extent2I(100, 100))
-        scale = 5.0e-5 # deg/pix; for CD matrix
+        scale = 5.0e-5  # deg/pix; for CD matrix
         coord = afwCoord.Coord(0.0*afwGeom.degrees, 0.0*afwGeom.degrees)
         center = afwGeom.Point2D(afwGeom.Extent2D(coaddBox.getDimensions())*0.5)
         coaddWcs = afwImage.makeWcs(coord, afwGeom.Point2D(0, 0), scale, 0.0, 0.0, scale)
@@ -69,7 +69,7 @@ class CoaddApCorrMapTest(unittest.TestCase):
         pointListValid = []
 
         for i in range(num):
-            value = numpy.array([[1]], dtype=float) # Constant with value = i+1
+            value = numpy.array([[1]], dtype=float)  # Constant with value = i+1
             apCorrMap = afwImage.ApCorrMap()
             bf = afwMath.ChebyshevBoundedField(inputBox, value*(i + 1))
             apCorrMap.set("only", bf)
@@ -83,7 +83,7 @@ class CoaddApCorrMapTest(unittest.TestCase):
             pointValid = center + afwGeom.Extent2D(4, 4)
             pointListValid.append(coaddWcs.skyToPixel(wcs.pixelToSky(pointValid)))
 
-            # A record with the valid polygon defining a limited region 
+            # A record with the valid polygon defining a limited region
             record = catalog.getTable().makeRecord()
             record.setWcs(wcs)
             record.setBBox(inputBox)
@@ -125,7 +125,7 @@ class CoaddApCorrMapTest(unittest.TestCase):
         for i, point in enumerate(pointList):
             weights = [i+1, i+2]
             values = [i+1, i+2]
-            expected = sum((w*v for w,v in zip(weights, values)), 0.0) / sum(weights)
+            expected = sum((w*v for w, v in zip(weights, values)), 0.0) / sum(weights)
             actual = apCorrMap["only"].evaluate(point)
             self.assertEqual(actual, expected)
 
@@ -133,11 +133,10 @@ class CoaddApCorrMapTest(unittest.TestCase):
         for i, point in enumerate(pointList):
             weights = [i+2]
             values = [i+2]
-            expected = sum((w*v for w,v in zip(weights, values)), 0.0) / sum(weights)
+            expected = sum((w*v for w, v in zip(weights, values)), 0.0) / sum(weights)
             actual = apCorrMap["only"].evaluate(point)
             self.assertEqual(actual, expected)
 
-            
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -149,6 +148,7 @@ def suite():
     suites += unittest.makeSuite(CoaddApCorrMapTest)
     suites += unittest.makeSuite(utilsTests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the utilsTests"""

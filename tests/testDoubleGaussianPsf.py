@@ -9,7 +9,8 @@ or
    >>> import psf; psf.run()
 """
 
-import os, sys
+import os
+import sys
 from math import *
 import unittest
 import lsst.utils.tests as utilsTests
@@ -35,6 +36,7 @@ try:
 except NameError:
     display = False
 
+
 class DoubleGaussianPsfTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -52,7 +54,7 @@ class DoubleGaussianPsfTestCase(unittest.TestCase):
         kIm = self.psf.computeImage(ccdXY)
 
         if False:
-            ds9.mtv(kIm)        
+            ds9.mtv(kIm)
 
         self.assertEqual(kIm.getWidth(), self.ksize)
         xcen, ycen = self.ksize/2, self.ksize/2
@@ -135,7 +137,7 @@ class DoubleGaussianPsfTestCase(unittest.TestCase):
     def testKernelPsf(self):
         """Test creating a Psf from a Kernel"""
 
-        x,y = 10.4999, 10.4999
+        x, y = 10.4999, 10.4999
         ksize = 15
         sigma1 = 1
         #
@@ -153,7 +155,8 @@ class DoubleGaussianPsfTestCase(unittest.TestCase):
         #
         # Check that they're the same
         #
-        diff = type(kIm)(kIm, True); diff -= dgIm
+        diff = type(kIm)(kIm, True)
+        diff -= dgIm
         stats = afwMath.makeStatistics(diff, afwMath.MAX | afwMath.MIN)
         self.assertAlmostEqual(stats.getValue(afwMath.MAX), 0.0, places=16)
         self.assertAlmostEqual(stats.getValue(afwMath.MIN), 0.0, places=16)
@@ -175,6 +178,7 @@ class DoubleGaussianPsfTestCase(unittest.TestCase):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     utilsTests.init()
@@ -183,6 +187,7 @@ def suite():
     suites += unittest.makeSuite(DoubleGaussianPsfTestCase)
     suites += unittest.makeSuite(utilsTests.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the utilsTests"""

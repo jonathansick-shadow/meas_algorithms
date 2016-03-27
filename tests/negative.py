@@ -15,8 +15,10 @@ try:
 except NameError:
     display = False
 
+
 class NegativeMeasurementTestCase(unittest.TestCase):
     """A test case for negative objects"""
+
     def testBasics(self):
         bbox = afwGeom.Box2I(afwGeom.Point2I(256, 100), afwGeom.Extent2I(128, 127))
         minCounts = 2000
@@ -36,12 +38,12 @@ class NegativeMeasurementTestCase(unittest.TestCase):
         sky = 2000
         addPoissonNoise = True
         exposure = plantSources(bbox=bbox, kwid=kwid, sky=sky, coordList=coordList,
-            addPoissonNoise=addPoissonNoise)
+                                addPoissonNoise=addPoissonNoise)
 
         if display:
             ds9.mtv(exposure)
 
-        schema = afwTable.SourceTable.makeMinimalSchema()        
+        schema = afwTable.SourceTable.makeMinimalSchema()
         config = SourceDetectionTask.ConfigClass()
         config.reEstimateBackground = False
         config.thresholdPolarity = 'both'
@@ -70,8 +72,8 @@ class NegativeMeasurementTestCase(unittest.TestCase):
                 nGoodCent += 1
 
             if (shape.getIxx() == shape.getIxx() and
-                shape.getIyy() == shape.getIyy() and
-                shape.getIxy() == shape.getIxy()):
+                    shape.getIyy() == shape.getIyy() and
+                    shape.getIxy() == shape.getIxy()):
                 nGoodShape += 1
 
             if display:
@@ -89,7 +91,7 @@ class NegativeMeasurementTestCase(unittest.TestCase):
         minX = bbox.getMinX() + (dX / 2.0)
         minY = bbox.getMinY() + (dY / 2.0)
         dCounts = (maxCounts - minCounts) / (numX * numY / 2 - 1)
-    
+
         coordList = []
         counts = minCounts
         for i in range(numX):
@@ -103,6 +105,7 @@ class NegativeMeasurementTestCase(unittest.TestCase):
                     counts += dCounts
         return coordList
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     utilsTests.init()
@@ -111,6 +114,7 @@ def suite():
     suites += unittest.makeSuite(NegativeMeasurementTestCase)
 
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the tests"""

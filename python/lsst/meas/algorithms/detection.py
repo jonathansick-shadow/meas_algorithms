@@ -1,7 +1,7 @@
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2016 AURA/LSST.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -9,14 +9,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <https://www.lsstcorp.org/LegalNotices/>.
 #
 import numpy
@@ -35,6 +35,7 @@ import lsst.pipe.base as pipeBase
 __all__ = ("SourceDetectionConfig", "SourceDetectionTask", "getBackground",
            "estimateBackground", "BackgroundConfig", "addExposures")
 
+
 class BackgroundConfig(pexConfig.Config):
     """!Config for background estimation
     """
@@ -45,7 +46,7 @@ class BackgroundConfig(pexConfig.Config):
             "MEANCLIP": "clipped mean",
             "MEAN": "unclipped mean",
             "MEDIAN": "median",
-            }
+        }
     )
     undersampleStyle = pexConfig.ChoiceField(
         doc="behaviour if there are too few points in grid for requested interpolation style",
@@ -54,7 +55,7 @@ class BackgroundConfig(pexConfig.Config):
             "THROW_EXCEPTION": "throw an exception if there are too few points",
             "REDUCE_INTERP_ORDER": "use an interpolation style with a lower order.",
             "INCREASE_NXNYSAMPLE": "Increase the number of samples used to make the interpolation grid.",
-            },
+        },
     )
     binSize = pexConfig.RangeField(
         doc="how large a region of the sky should be used for each background point",
@@ -64,16 +65,16 @@ class BackgroundConfig(pexConfig.Config):
         doc="how to interpolate the background values. This maps to an enum; see afw::math::Background",
         dtype=str, default="NATURAL_SPLINE", optional=True,
         allowed={
-            "CONSTANT" : "Use a single constant value",
-            "LINEAR" : "Use linear interpolation",
-            "NATURAL_SPLINE" : "cubic spline with zero second derivative at endpoints",
+            "CONSTANT": "Use a single constant value",
+            "LINEAR": "Use linear interpolation",
+            "NATURAL_SPLINE": "cubic spline with zero second derivative at endpoints",
             "AKIMA_SPLINE": "higher-level nonlinear spline that is more robust to outliers",
             "NONE": "No background estimation is to be attempted",
-            },
+        },
     )
     ignoredPixelMask = pexConfig.ListField(
         doc="Names of mask planes to ignore while estimating the background",
-        dtype=str, default = ["BAD", "EDGE", "DETECTED", "DETECTED_NEGATIVE", "NO_DATA",],
+        dtype=str, default = ["BAD", "EDGE", "DETECTED", "DETECTED_NEGATIVE", "NO_DATA", ],
         itemCheck = lambda x: x in afwImage.MaskU().getMaskPlaneDict().keys(),
     )
     isNanSafe = pexConfig.Field(
@@ -107,6 +108,7 @@ class BackgroundConfig(pexConfig.Config):
         if self.algorithm is None:
             self.algorithm = "NONE"
 
+
 class SourceDetectionConfig(pexConfig.Config):
     """!Configuration parameters for the SourceDetectionTask
     """
@@ -120,7 +122,7 @@ class SourceDetectionConfig(pexConfig.Config):
     )
     nSigmaToGrow = pexConfig.Field(
         doc="Grow detections by nSigmaToGrow * sigma; if 0 then do not grow",
-        dtype=float, default=2.4, # 2.4 pixels/sigma is roughly one pixel/FWHM
+        dtype=float, default=2.4,  # 2.4 pixels/sigma is roughly one pixel/FWHM
     )
     returnOriginalFootprints = pexConfig.Field(
         doc="Grow detections to set the image mask bits, but return the original (not-grown) footprints",
@@ -183,12 +185,13 @@ class SourceDetectionConfig(pexConfig.Config):
         self.tempLocalBackground.algorithm = "AKIMA_SPLINE"
         self.tempLocalBackground.useApprox = False
 
-## \addtogroup LSST_task_documentation
-## \{
-## \page sourceDetectionTask
-## \ref SourceDetectionTask_ "SourceDetectionTask"
-## \copybrief SourceDetectionTask
-## \}
+# \addtogroup LSST_task_documentation
+# \{
+# \page sourceDetectionTask
+# \ref SourceDetectionTask_ "SourceDetectionTask"
+# \copybrief SourceDetectionTask
+# \}
+
 
 class SourceDetectionTask(pipeBase.Task):
     """!
@@ -344,7 +347,7 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
         fpSets = self.detectFootprints(exposure=exposure, doSmooth=doSmooth, sigma=sigma,
                                        clearMask=clearMask)
         sources = afwTable.SourceCatalog(table)
-        table.preallocate(fpSets.numPos + fpSets.numNeg) # not required, but nice
+        table.preallocate(fpSets.numPos + fpSets.numNeg)  # not required, but nice
         if fpSets.negative:
             fpSets.negative.makeSources(sources)
             if self.negativeFlagKey:
@@ -355,9 +358,9 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
         return pipeBase.Struct(
             sources = sources,
             fpSets = fpSets
-            )
+        )
 
-    ## An alias for run             \deprecated Remove this alias after checking for where it's used
+    # An alias for run             \deprecated Remove this alias after checking for where it's used
     makeSourceCatalog = run
 
     @pipeBase.timeMethod
@@ -421,7 +424,7 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
             # smooth using a Gaussian (which is separate, hence fast) of width sigma
             # make a SingleGaussian (separable) kernel with the 'sigma'
             psf = exposure.getPsf()
-            kWidth = (int(sigma * 7 + 0.5) // 2) * 2 + 1 # make sure it is odd
+            kWidth = (int(sigma * 7 + 0.5) // 2) * 2 + 1  # make sure it is odd
             self.metadata.set("smoothingKernelWidth", kWidth)
             gaussFunc = afwMath.GaussianFunction1D(sigma)
             gaussKernel = afwMath.SeparableKernel(kWidth, kWidth, gaussFunc, gaussFunc)
@@ -498,6 +501,7 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
         if display:
             ds9.mtv(exposure, frame=0, title="detection")
             x0, y0 = exposure.getXY0()
+
             def plotPeaks(fps, ctype):
                 if fps is None:
                     return
@@ -528,7 +532,7 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
         threshold.setIncludeMultiplier(self.config.includeThresholdMultiplier)
 
         if self.config.thresholdType == 'stdev':
-            bad = image.getMask().getPlaneBitMask(['BAD', 'SAT', 'EDGE', 'NO_DATA',])
+            bad = image.getMask().getPlaneBitMask(['BAD', 'SAT', 'EDGE', 'NO_DATA', ])
             sctrl = afwMath.StatisticsControl()
             sctrl.setAndMask(bad)
             stats = afwMath.makeStatistics(image, afwMath.STDEVCLIP, sctrl)
@@ -563,6 +567,7 @@ into your debug.py file and run measAlgTasks.py with the \c --debug flag.
                                                      afwGeom.ExtentI(w, h)), afwImage.LOCAL)
             edgeMask |= edgeBitmask
 
+
 def addExposures(exposureList):
     """!Add a set of exposures together.
 
@@ -587,6 +592,7 @@ def addExposures(exposureList):
     addedExposure = exposure0.Factory(addedImage, exposure0.getWcs())
     return addedExposure
 
+
 def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
     """!Estimate the background of an image (a thin layer on lsst.afw.math.makeBackground)
 
@@ -596,10 +602,10 @@ def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
     \param[in] ny  number of y bands; 0 for default
     \param[in] algorithm  name of interpolation algorithm; see lsst.afw.math.BackgroundControl for details
     """
-    backgroundConfig.validate();
+    backgroundConfig.validate()
 
     logger = pexLogging.getDefaultLog()
-    logger = pexLogging.Log(logger,"lsst.meas.algorithms.detection.getBackground")
+    logger = pexLogging.Log(logger, "lsst.meas.algorithms.detection.getBackground")
 
     if not nx:
         nx = image.getWidth()//backgroundConfig.binSize + 1
@@ -616,7 +622,6 @@ def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
             for (xMin, xMax), (yMin, yMax) in itertools.product(zip(xPosts[:-1], xPosts[1:]),
                                                                 zip(yPosts[:-1], yPosts[1:])):
                 ds9.line([(xMin, yMin), (xMin, yMax), (xMax, yMax), (xMax, yMin), (xMin, yMin)], frame=1)
-
 
     sctrl = afwMath.StatisticsControl()
     sctrl.setAndMask(reduce(lambda x, y: x | image.getMask().getPlaneBitMask(y),
@@ -647,16 +652,16 @@ def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
     # (i.e. ngrid (= shortDimension/binSize) > approxOrderX) and perform
     # appropriate undersampleStlye behavior.
     if backgroundConfig.useApprox:
-        if not backgroundConfig.approxOrderY in (backgroundConfig.approxOrderX,-1):
+        if not backgroundConfig.approxOrderY in (backgroundConfig.approxOrderX, -1):
             raise ValueError("Error: approxOrderY not in (approxOrderX, -1)")
         order = backgroundConfig.approxOrderX
         minNumberGridPoints = backgroundConfig.approxOrderX + 1
-        if min(nx,ny) <= backgroundConfig.approxOrderX:
-            logger.warn("Too few points in grid to constrain fit: min(nx, ny) < approxOrder) "+
+        if min(nx, ny) <= backgroundConfig.approxOrderX:
+            logger.warn("Too few points in grid to constrain fit: min(nx, ny) < approxOrder) " +
                         "[min(%d, %d) < %d]" % (nx, ny, backgroundConfig.approxOrderX))
             if backgroundConfig.undersampleStyle == "THROW_EXCEPTION":
                 raise ValueError("Too few points in grid (%d, %d) for order (%d) and binsize (%d)" % (
-                        nx, ny, backgroundConfig.approxOrderX, backgroundConfig.binSize))
+                    nx, ny, backgroundConfig.approxOrderX, backgroundConfig.binSize))
             elif backgroundConfig.undersampleStyle == "REDUCE_INTERP_ORDER":
                 if order < 1:
                     raise ValueError("Cannot reduce approxOrder below 0.  " +
@@ -664,7 +669,7 @@ def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
                 order = min(nx, ny) - 1
                 logger.warn("Reducing approxOrder to %d" % order)
             elif backgroundConfig.undersampleStyle == "INCREASE_NXNYSAMPLE":
-                newBinSize = min(image.getWidth(),image.getHeight())//(minNumberGridPoints-1)
+                newBinSize = min(image.getWidth(), image.getHeight())//(minNumberGridPoints-1)
                 if newBinSize < 1:
                     raise ValueError("Binsize must be greater than 0")
                 newNx = image.getWidth()//newBinSize + 1
@@ -681,6 +686,7 @@ def getBackground(image, backgroundConfig, nx=0, ny=0, algorithm=None):
     return afwMath.makeBackground(image, bctrl)
 
 getBackground.ConfigClass = BackgroundConfig
+
 
 def estimateBackground(exposure, backgroundConfig, subtract=True, stats=True,
                        statsKeys=None):
@@ -723,7 +729,7 @@ def estimateBackground(exposure, backgroundConfig, subtract=True, stats=True,
     # (lsst.daf.base.PropertySet)
     if stats:
         if statsKeys is None:
-            mnkey  = 'BGMEAN'
+            mnkey = 'BGMEAN'
             varkey = 'BGVAR'
         else:
             mnkey, varkey = statsKeys

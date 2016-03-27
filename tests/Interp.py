@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2015 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,14 +11,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
@@ -36,7 +36,8 @@ import os
 from math import *
 import unittest
 import lsst.utils
-import math, numpy
+import math
+import numpy
 import lsst.utils.tests as tests
 import lsst.pex.logging as logging
 import lsst.afw.detection as afwDetection
@@ -63,8 +64,10 @@ try:
 except Exception:
     afwdataDir = None
 
+
 class interpolationTestCase(unittest.TestCase):
     """A test case for interpolation"""
+
     def setUp(self):
         self.FWHM = 5
         self.psf = algorithms.DoubleGaussianPsf(15, 15, self.FWHM/(2*sqrt(2*log(2))))
@@ -130,9 +133,9 @@ class interpolationTestCase(unittest.TestCase):
         for i in range(100):
             for j in range(100):
                 if i == 50 or i == 55 or i == 58:
-                    flat.set(i,j,0)
+                    flat.set(i, j, 0)
                 if i < 60 and i > 50 and j > 50:
-                    flat.set(i,j,0)
+                    flat.set(i, j, 0)
 
         mi /= flat
 
@@ -140,13 +143,13 @@ class interpolationTestCase(unittest.TestCase):
             ds9.mtv(mi, frame=0, title="Raw")
 
         defectList = algorithms.DefectListT()
-        bbox = afwGeom.BoxI(afwGeom.PointI(50,0), afwGeom.ExtentI(1,100))
+        bbox = afwGeom.BoxI(afwGeom.PointI(50, 0), afwGeom.ExtentI(1, 100))
         defectList.append(algorithms.Defect(bbox))
-        bbox = afwGeom.BoxI(afwGeom.PointI(55,0), afwGeom.ExtentI(1,100))
+        bbox = afwGeom.BoxI(afwGeom.PointI(55, 0), afwGeom.ExtentI(1, 100))
         defectList.append(algorithms.Defect(bbox))
-        bbox = afwGeom.BoxI(afwGeom.PointI(58,0), afwGeom.ExtentI(1,100))
+        bbox = afwGeom.BoxI(afwGeom.PointI(58, 0), afwGeom.ExtentI(1, 100))
         defectList.append(algorithms.Defect(bbox))
-        bbox = afwGeom.BoxI(afwGeom.PointI(51,51), afwGeom.ExtentI(9,49))
+        bbox = afwGeom.BoxI(afwGeom.PointI(51, 51), afwGeom.ExtentI(9, 49))
         defectList.append(algorithms.Defect(bbox))
 
         psf = algorithms.DoubleGaussianPsf(15, 15, 1./(2*math.sqrt(2*math.log(2))))
@@ -179,7 +182,7 @@ class interpolationTestCase(unittest.TestCase):
                 # Bad left edge
                 #
                 ima[:, 0:nBadCol] = 10
-                defects.append(afwGeom.BoxI(afwGeom.PointI(0,0),
+                defects.append(afwGeom.BoxI(afwGeom.PointI(0, 0),
                                             afwGeom.ExtentI(nBadCol, mi.getHeight())))
                 #
                 # With another bad set of columns next to bad left edge
@@ -191,13 +194,13 @@ class interpolationTestCase(unittest.TestCase):
                 # Bad right edge
                 #
                 ima[0:10, nBadCol+1:nBadCol+4] = 100
-                defects.append(afwGeom.BoxI(afwGeom.PointI(nBadCol+1,0),
+                defects.append(afwGeom.BoxI(afwGeom.PointI(nBadCol+1, 0),
                                             afwGeom.ExtentI(3, 10)))
                 #
                 # With another bad set of columns next to bad right edge
                 #
                 ima[0:10, -nBadCol-4:-nBadCol-1] = 100
-                defects.append((afwGeom.BoxI(afwGeom.PointI(mi.getWidth() - nBadCol - 4,0),
+                defects.append((afwGeom.BoxI(afwGeom.PointI(mi.getWidth() - nBadCol - 4, 0),
                                              afwGeom.ExtentI(3, 10))))
             #
             # Test cases that left and right bad patches nearly (or do) coalesce
@@ -216,7 +219,7 @@ class interpolationTestCase(unittest.TestCase):
 
             ima[-2:, mi.getWidth()//2+1:] = 100
             defects.append(afwGeom.BoxI(afwGeom.PointI(mi.getWidth()//2 + 1, mi.getHeight() - 2),
-                                                       afwGeom.ExtentI(mi.getWidth()//2 - 1, 1)))
+                                        afwGeom.ExtentI(mi.getWidth()//2 - 1, 1)))
 
             ima[-1:, :] = 100
             defects.append(afwGeom.BoxI(afwGeom.PointI(0, mi.getHeight() - 1),
@@ -251,6 +254,7 @@ class interpolationTestCase(unittest.TestCase):
             self.assertGreater(2, numpy.max(ima))
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
 def suite():
     """Returns a suite containing all the test cases in this module."""

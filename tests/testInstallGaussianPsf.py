@@ -28,6 +28,7 @@ from lsst.afw.image import ExposureF
 from lsst.meas.algorithms import SingleGaussianPsf, DoubleGaussianPsf
 from lsst.meas.algorithms.installGaussianPsf import InstallGaussianPsfTask, FwhmPerSigma
 
+
 class CandidateMaskingTestCase(utilsTest.TestCase):
     """Test InstallGaussianPsfTask"""
 
@@ -103,6 +104,7 @@ class CandidateMaskingTestCase(utilsTest.TestCase):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     utilsTest.init()
@@ -111,6 +113,7 @@ def suite():
     suites += unittest.makeSuite(CandidateMaskingTestCase)
     suites += unittest.makeSuite(utilsTest.MemoryTestCase)
     return unittest.TestSuite(suites)
+
 
 def run(exit = False):
     """Run the tests"""
